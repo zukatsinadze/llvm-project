@@ -97,6 +97,7 @@ add_clang_library(clangStaticAnalyzerCheckers
   ReturnUndefChecker.cpp
   ReturnValueChecker.cpp
   RunLoopAutoreleaseLeakChecker.cpp
+  cert/Str37Checker.cpp
   SimpleStreamChecker.cpp
   SmartPtrModeling.cpp
   StackAddrEscapeChecker.cpp

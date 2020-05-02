@@ -1930,19 +1930,6 @@ Warns against using one vs. many plural pattern in code when generating localize
 alpha.security
 ^^^^^^^^^^^^^^
 
-
-alpha.security.cert
-^^^^^^^^^^^^^^^^^^^
-
-SEI CERT checkers which tries to find errors based on their `C coding rules <https://wiki.sei.cmu.edu/confluence/display/c/2+Rules>`_.
-
-.. _alpha-security-cert-pos-checkers:
-
-alpha.security.cert.pos
-^^^^^^^^^^^^^^^^^^^^^^^
-
-SEI CERT checkers of `POSIX C coding rules <https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=87152405>`_.
-
 .. _alpha-security-cert-pos-34c:
 
 alpha.security.cert.pos.34c
@@ -1960,7 +1947,29 @@ Finds calls to the ``putenv`` function which pass a pointer to an automatic vari
  
     return putenv(env); // putenv function should not be called with auto variables
   }
-  
+
+
+.. _alpha-security-cert-str-37c:
+
+alpha.security.cert.str.37c
+"""""""""""""""""""""""""""
+
+Finds calls of character-handling functions with arguments which are not representable as an unsigned char.
+Rule applies to the following functions: ``isalnum``, ``isalpha``, ``isascii``, ``isblank``, ``iscntrl``, ``isdigit``, ``isgraph``, 
+``islower``, ``isprint``, ``ispunct``, ``isspace``, ``isupper``, ``isxdigit``, ``toascii``, ``toupper``, ``tolower``.
+
+.. code-block:: c
+
+  size_t count_preceding_whitespace(const char *s) {
+    const char *t = s;
+    size_t length = strlen(s) + 1;
+    while (isspace(*t) && (t - s < length)) { 
+      // The argument to isspace() must be EOF or representable as an unsigned char; otherwise, the result is undefined.
+      ++t;
+    }
+    return t - s;
+}
+
 .. _alpha-security-ArrayBound:
 
 alpha.security.ArrayBound (C)

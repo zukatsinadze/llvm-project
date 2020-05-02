@@ -73,6 +73,7 @@ def Taint : Package<"taint">, ParentPackage<SecurityAlpha>;
 
 def CERT : Package<"cert">, ParentPackage<SecurityAlpha>;
 def POS : Package<"pos">, ParentPackage<CERT>;
+def STR : Package<"str">, ParentPackage<CERT>;
 
 def Unix : Package<"unix">;
 def UnixAlpha : Package<"unix">, ParentPackage<Alpha>;
@@ -847,6 +848,15 @@ let ParentPackage = POS in {
   Documentation<HasDocumentation>;
 
 } // end "alpha.cert.pos"
+
+let ParentPackage = STR in {
+
+  def Str37 : Checker<"37c">,
+  HelpText<"Arguments to character-handling functions must be "
+           "representable as an unsigned char">,
+  Documentation<HasDocumentation>;
+
+} // end "alpha.cert.str"
 
 let ParentPackage = SecurityAlpha in {
 

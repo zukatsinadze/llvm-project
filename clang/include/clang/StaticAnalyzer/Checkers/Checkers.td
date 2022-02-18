@@ -220,6 +220,10 @@ def StackAddrEscapeChecker : Checker<"StackAddressEscape">,
   Dependencies<[StackAddrEscapeBase]>,
   Documentation<HasDocumentation>;
 
+def StoreToImmutableChecker : Checker<"StoreToImmutable">,
+  HelpText<"Check for writes to immutable memory.">,
+  Documentation<HasDocumentation>;
+
 def DynamicTypePropagation : Checker<"DynamicTypePropagation">,
   HelpText<"Generate dynamic type information">,
   Documentation<NotDocumented>,
@@ -962,6 +966,12 @@ let ParentPackage = ENV in {
   def InvalidPtrChecker : Checker<"InvalidPtr">,
   HelpText<"Finds usages of possibly invalidated pointers">,
   Documentation<HasDocumentation>;
+
+  def ModelConstQualifiedReturnChecker : Checker<"ModelConstQualifiedReturn">,
+  HelpText<"Model return values of some functions as const-qualified. "
+           "StoreToImmutable checker would warn on their modification.">,
+  Documentation<HasDocumentation>;
+
 
 } // end "alpha.cert.env"
 

@@ -64,6 +64,7 @@ add_clang_library(clangStaticAnalyzerCheckers
   MismatchedIteratorChecker.cpp
   MmapWriteExecChecker.cpp
   MIGChecker.cpp
+  cert/ModelConstQualifiedReturnChecker.cpp
   MoveChecker.cpp
   MPI-Checker/MPIBugReporter.cpp
   MPI-Checker/MPIChecker.cpp
@@ -104,6 +105,7 @@ add_clang_library(clangStaticAnalyzerCheckers
   StackAddrEscapeChecker.cpp
   StdLibraryFunctionsChecker.cpp
   STLAlgorithmModeling.cpp
+  StoreToImmutableChecker.cpp
   StreamChecker.cpp
   StringChecker.cpp
   Taint.cpp

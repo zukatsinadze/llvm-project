@@ -132,6 +132,21 @@ Check that addresses to stack memory do not escape the function.
    x = &y; // warn
  }
 
+.. _core-StoreToImmutable:
+
+core.StoreToImmutable (C, C++)
+"""""""""""""""""""""""""""""""""""""""
+Check for writes to immutable memory.
+
+.. code-block:: cpp
+
+ void write_to_envvar() {
+  char *p = getenv("VAR");
+    if (!p)
+    return;
+  p[0] = '\0'; // warn
+ }
+
 
 .. _core-UndefinedBinaryOperatorResult:
 
@@ -2306,6 +2321,33 @@ pointer. These functions include: getenv, localeconv, asctime, setlocale, strerr
 
     *p;
     // dereferencing invalid pointer
+  }
+
+.. _alpha-security-cert-env-ModelConstQualifiedReturn:
+
+alpha.security.cert.env.ModelConstQualifiedReturn
+"""""""""""""""""""""""""""""""""""""""""""""""""
+
+Corresponds to SEI CERT Rules ENV30-C.
+
+Some functions return a pointer to an object that cannot be
+modified without causing undefined behavior. These functions
+include getenv(), setlocale(), localeconv(), asctime(), and
+strerror(). In such cases, the function call results must be
+treated as being const-qualified.
+
+Checker models return values of these functions as const
+qualified. Their modification is checked in StoreToImmutable
+core checker.
+
+.. code-block:: c
+
+  void writing_to_envvar() {
+    char *p = getenv("VAR"); // note: getenv return value
+                             // should be treated as const
+    if (!p)
+      return;
+    p[0] = '\0'; // warn
   }
 
 alpha.security.taint

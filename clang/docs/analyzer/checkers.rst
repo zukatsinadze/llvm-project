@@ -66,7 +66,7 @@ Check for null pointers passed as arguments to a function whose arguments are re
 
 core.NullDereference (C, C++, ObjC)
 """""""""""""""""""""""""""""""""""
-Check for dereferences of null pointers. 
+Check for dereferences of null pointers.
 
 This checker specifically does
 not report null pointer dereferences for x86 and x86-64 targets when the
@@ -75,7 +75,7 @@ segment). See `X86/X86-64 Language Extensions
 <https://clang.llvm.org/docs/LanguageExtensions.html#memory-references-to-specified-segments>`__
 for reference.
 
-The ``SuppressAddressSpaces`` option suppresses 
+The ``SuppressAddressSpaces`` option suppresses
 warnings for null dereferences of all pointers with address spaces. You can
 disable this behavior with the option
 ``-analyzer-config core.NullDereference:SuppressAddressSpaces=false``.
@@ -145,6 +145,39 @@ Check that addresses to stack memory do not escape the function.
    x = &y; // warn
  }
 
+.. _core-StoreToImmutable:
+
+core.StoreToImmutable (C, C++)
+"""""""""""""""""""""""""""""""""""""""
+Check for writes to immutable memory.
+
+.. code-block:: cpp
+
+ void write_to_envvar() {
+  char *p = getenv("VAR");
+  if (!p)
+    return;
+  p[0] = '\0'; // warn
+ }
+
+Note that this example depends on :ref:`_alpha-security-cert-env-ModelConstQualifiedReturn`
+checker that models return value of getenv as const-qualified, however there are other
+scenarios where such immutable memory regions arise.
+
+To fix the error, user can add `const` as preventive measure and make a copy of the
+immutable memory region to a mutable location and do the mutation there instead.
+
+.. code-block:: cpp
+
+ void write_to_envvar() {
+  const char *p = getenv("VAR");
+  if (!p)
+    return;
+
+  copy_of_p = (char *)malloc(strlen(p) + 1);
+  strcpy(copy_of_p, p);
+  copy_of_p[0] = '\0';
+ }
 
 .. _core-UndefinedBinaryOperatorResult:
 
@@ -2340,6 +2373,32 @@ pointer. These functions include: getenv, localeconv, asctime, setlocale, strerr
     // dereferencing invalid pointer
   }
 
+.. _alpha-security-cert-env-ModelConstQualifiedReturn:
+
+alpha.security.cert.env.ModelConstQualifiedReturn
+"""""""""""""""""""""""""""""""""""""""""""""""""
+
+Corresponds to SEI CERT Rules ENV30-C.
+
+Some functions return a pointer to an object that cannot be
+modified without causing undefined behavior. In such cases,
+the function call results must be treated as being const-qualified.
+
+These functions include ``getenv(), setlocale(), localeconv(), asctime(), strerror()``.
+
+Checker models return values of these functions as const
+qualified. Their modification is checked in :ref:`_core-StoreToImmutable`.
+
+.. code-block:: c
+
+  void writing_to_envvar() {
+    char *p = getenv("VAR"); // note: getenv return value
+                             // should be treated as const
+    if (!p)
+      return;
+    p[0] = '\0'; // warn
+  }
+
 alpha.security.taint
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -2670,7 +2729,7 @@ alpha.unix.cstring.UninitializedRead (C)
 Check for uninitialized reads from common memory copy/manipulation functions such as:
  ``memcpy, mempcpy, memmove, memcmp, strcmp, strncmp, strcpy, strlen, strsep`` and many more.
 
-.. code-block:: c 
+.. code-block:: c
 
  void test() {
   char src[10];
@@ -2679,12 +2738,12 @@ Check for uninitialized reads from common memory copy/manipulation functions suc
  }
 
 Limitations:
-  
+
    - Due to limitations of the memory modeling in the analyzer, one can likely
      observe a lot of false-positive reports like this:
 
       .. code-block:: c
-  
+
         void false_positive() {
           int src[] = {1, 2, 3, 4};
           int dst[5] = {0};
@@ -2693,9 +2752,9 @@ Limitations:
           // that since the analyzer could not see a direct initialization of the
           // very last byte of the source buffer.
         }
-  
+
      More details at the corresponding `GitHub issue <https://github.com/llvm/llvm-project/issues/43459>`_.
-  
+
 .. _alpha-nondeterminism-PointerIteration:
 
 alpha.nondeterminism.PointerIteration (C++)
